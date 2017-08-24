@@ -6,8 +6,10 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,6 +42,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
+
+import javax.activation.DataHandler;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -52,6 +65,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LocationRequest mLocationRequest;
     private Location location;
     private boolean boolLocationRequest=false;
+    private String mailhost = "smtp.gmail.com";
+    private String user;
+    private String password;
+    private Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -296,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(v.getId()==R.id.button)
         {
             if(editText1.getText().toString().trim().length()!=0 && editText2.getText().toString().trim().length()!=0 && editText3.getText().toString().trim().length()!=0) {
-                Intent intent = new Intent();
+                /*Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_SEND);
                 intent.setType("message/rfc822");
                 //intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
@@ -304,7 +321,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         "dnsjadhav@gmail.com" });
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Car Repairing Request");
                 intent.putExtra(Intent.EXTRA_TEXT, "Name - " + editText1.getText().toString() + " Phone No. - " + editText2.getText().toString() + " Location - " + editText3.getText().toString());
-                startActivity(intent);
+                startActivity(intent);*/
+
+               new AsyncTask<String,Void,Void>(){
+
+
+                   @Override
+                   protected Void doInBackground(String... params) {
+
+                       Properties props = new Properties();
+                       props.put("mail.smtp.host", mailhost);
+                       props.put("mail.smtp.auth", "true");
+                       props.put("mail.smtp.port", "465");
+                       props.put("mail.smtp.socketFactory.port", "465");
+                       props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+                       props.put("mail.smtp.ssl.enable", "true");
+                       props.put("mail.smtp.user", "ghostkiller788@gmail.com");
+                       session = Session.getInstance(props, new Authenticator() {
+                           @Override
+                           protected PasswordAuthentication getPasswordAuthentication() {
+                               return new PasswordAuthentication("ghostkiller788@gmail.com","kissmydick2299");
+                           }
+                       });
+                       try {
+                           MimeMessage message = new MimeMessage(session);
+                           //DataHandler handler = new DataHandler(new GMailSender.ByteArrayDataSource(body.getBytes(), "text/plain"));
+                           message.setFrom(new InternetAddress("ghostkiller788@gmail.com"));
+                           message.setSubject("car repair");
+                           message.setText(params[0]+ " "+ params[1]+" "+ params[2]);
+                           //message.setDataHandler(handler);
+
+                           message.setRecipient(Message.RecipientType.TO, new InternetAddress("422abhinav@gmail.com"));
+
+                           Transport.send(message);
+                       } catch (MessagingException ex) {
+                           ex.printStackTrace();
+                       }
+
+                       return null;
+                   }
+               }.execute(editText1.getText().toString(),editText2.getText().toString(),editText3.getText().toString());
+
+
+
+
             }
             else{
                 if(editText3.getText().toString().trim().length()==0)
