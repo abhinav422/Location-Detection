@@ -6,8 +6,10 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -296,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(v.getId()==R.id.button)
         {
             if(editText1.getText().toString().trim().length()!=0 && editText2.getText().toString().trim().length()!=0 && editText3.getText().toString().trim().length()!=0) {
-                Intent intent = new Intent();
+                /*Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_SEND);
                 intent.setType("message/rfc822");
                 //intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
@@ -304,7 +306,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         "dnsjadhav@gmail.com" });
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Car Repairing Request");
                 intent.putExtra(Intent.EXTRA_TEXT, "Name - " + editText1.getText().toString() + " Phone No. - " + editText2.getText().toString() + " Location - " + editText3.getText().toString());
-                startActivity(intent);
+                startActivity(intent);*/
+
+               new AsyncTask<String,Void,Void>(){
+
+
+                   @Override
+                   protected Void doInBackground(String... params) {
+                       GMailSender gMailSender=new GMailSender("ghostkiller788@gmail.com","kissmydick2299");
+                       try {
+                           gMailSender.sendMail("car repair","Name - " + params[0] + " Phone No. - " + params[1] + " Location - " + params[2],"ghostkiller788@gmail.com","422abhinav@gmail.com");
+                       } catch (Exception e) {
+                           e.printStackTrace();
+                       }
+                       return null;
+                   }
+               }.execute(editText1.getText().toString(),editText2.getText().toString(),editText3.getText().toString());
+
             }
             else{
                 if(editText3.getText().toString().trim().length()==0)
