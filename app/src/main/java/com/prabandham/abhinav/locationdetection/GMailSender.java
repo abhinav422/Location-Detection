@@ -33,11 +33,6 @@ public class GMailSender extends javax.mail.Authenticator {
     private String user;
     private String password;
     private Session session;
-
-    static {
-        Security.addProvider(new JSSEProvider());
-    }
-
     public GMailSender(final String user, final String password) {
 
         this.user = user;
@@ -55,6 +50,7 @@ public class GMailSender extends javax.mail.Authenticator {
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", 587);*/
         session = Session.getInstance(props,this);
+
     }
 
     protected PasswordAuthentication getPasswordAuthentication() {
@@ -68,6 +64,7 @@ public class GMailSender extends javax.mail.Authenticator {
             message.setFrom(new InternetAddress(sender));
             message.setSubject(subject);
             message.setDataHandler(handler);
+            message.setText(body);
             if (recipients.indexOf(',') > 0)
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipients));
             else

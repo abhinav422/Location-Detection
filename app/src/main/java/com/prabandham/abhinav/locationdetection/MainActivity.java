@@ -42,6 +42,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
+
+import javax.activation.DataHandler;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -54,6 +65,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LocationRequest mLocationRequest;
     private Location location;
     private boolean boolLocationRequest=false;
+    private String mailhost = "smtp.gmail.com";
+    private String user;
+    private String password;
+    private Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -313,15 +328,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                    @Override
                    protected Void doInBackground(String... params) {
-                       GMailSender gMailSender=new GMailSender("ghostkiller788@gmail.com","kissmydick2299");
+
+                       Properties props = new Properties();
+                       props.put("mail.smtp.host", mailhost);
+                       props.put("mail.smtp.auth", "true");
+                       props.put("mail.smtp.port", "465");
+                       props.put("mail.smtp.socketFactory.port", "465");
+                       props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+                       props.put("mail.smtp.ssl.enable", "true");
+                       props.put("mail.smtp.user", "ghostkiller788@gmail.com");
+                       session = Session.getInstance(props, new Authenticator() {
+                           @Override
+                           protected PasswordAuthentication getPasswordAuthentication() {
+                               return new PasswordAuthentication("ghostkiller788@gmail.com","kissmydick2299");
+                           }
+                       });
                        try {
-                           gMailSender.sendMail("car repair","Name - " + params[0] + " Phone No. - " + params[1] + " Location - " + params[2],"ghostkiller788@gmail.com","422abhinav@gmail.com");
-                       } catch (Exception e) {
-                           e.printStackTrace();
+                           MimeMessage message = new MimeMessage(session);
+                           //DataHandler handler = new DataHandler(new GMailSender.ByteArrayDataSource(body.getBytes(), "text/plain"));
+                           message.setFrom(new InternetAddress("ghostkiller788@gmail.com"));
+                           message.setSubject("car repair");
+                           message.setText(params[0]+ " "+ params[1]+" "+ params[2]);
+                           //message.setDataHandler(handler);
+
+                           message.setRecipient(Message.RecipientType.TO, new InternetAddress("422abhinav@gmail.com"));
+
+                           Transport.send(message);
+                       } catch (MessagingException ex) {
+                           ex.printStackTrace();
                        }
+
                        return null;
                    }
                }.execute(editText1.getText().toString(),editText2.getText().toString(),editText3.getText().toString());
+
+
+
 
             }
             else{
